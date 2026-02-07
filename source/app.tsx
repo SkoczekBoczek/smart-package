@@ -1,12 +1,16 @@
 import React, {FC, useState, useEffect} from 'react';
 import {Box, Text} from 'ink';
 import SelectInput from 'ink-select-input';
+import Spinner from 'ink-spinner';
+import {execa} from 'execa';
 import fs from 'fs';
 import path from 'path';
 
 const App: FC = () => {
 	const [dependencies, setDependencies] = useState<Record<string, string>>({});
 	const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+	const [aiResponse, setAiResponse] = useState<string>('');
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -28,6 +32,20 @@ const App: FC = () => {
 		}
 	}, []);
 
+	const fetchAnalysis = async (pkgName: string) => {
+		setIsLoading(true);
+		try {
+			const {stdout} = await execa('npm', ['view', pkgName, 'description']);
+			setAiResponse(stdout);
+		} catch (e: any) {
+			setAiResponse(
+				`Error: Failed to fetch data for ${pkgName}. \n${e.message}`,
+			);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	const items = Object.entries(dependencies).map(([pkg, version]) => ({
 		label: `${pkg} (${version})`,
 		value: pkg,
@@ -35,6 +53,7 @@ const App: FC = () => {
 
 	const handleSelect = (item: {label: string; value: string}) => {
 		setSelectedPackage(item.value);
+		fetchAnalysis(item.value);
 	};
 
 	return (
@@ -53,22 +72,36 @@ const App: FC = () => {
 
 			{error && <Text color="red">{error}</Text>}
 
-			{selectedPackage ? (
+			{isLoading && (
+				<Box>
+					<Text color="yellow">
+						<Spinner type="dots" /> Analyzing package{' '}
+						<Text bold>{selectedPackage}</Text>
+					</Text>
+				</Box>
+			)}
+
+			{!isLoading && selectedPackage && aiResponse && (
 				<Box
 					flexDirection="column"
 					borderColor="yellow"
 					borderStyle="single"
 					padding={1}
 				>
-					<Text>
-						Selected package:{' '}
-						<Text bold color="magenta">
-							{selectedPackage}
-						</Text>
+					<Text bold underline>
+						Report for: {selectedPackage}
 					</Text>
-					<Text color="gray">...</Text>
+					<Box marginY={1}>
+						<Text>{aiResponse}</Text>
+					</Box>
+					<Text color="gray" italic>
+						{' '}
+						(Restart app to return - Ctrl+C)
+					</Text>
 				</Box>
-			) : (
+			)}
+
+			{!isLoading && !selectedPackage && (
 				<Box flexDirection="column">
 					<Text>Select a package to analyze (Arrows + Enter):</Text>
 					<Box marginY={1}>
