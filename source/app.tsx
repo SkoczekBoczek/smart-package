@@ -35,14 +35,26 @@ const App: FC = () => {
 
 	useInput(input => {
 		if (selectedPackage && input === 'c') {
-			const prompt = `I am working on a JS project using ${selectedPackage} version ${
-				dependencies[selectedPackage!]
-			}. The latest version is ${
-				pkgData?.version
-			}. What are the breaking changes and potential risks of upgrading? Please list them step-by-step.`;
+			const currentVersion = dependencies[selectedPackage!] || '';
+			const latestVersion = pkgData?.version;
 
-			clipboard.writeSync(prompt);
-			setCopySuccess(true);
+			const cleanCurrent = currentVersion.replace(/[\^~]/, '');
+			const isUpToDate = cleanCurrent === latestVersion;
+
+			let prompt = '';
+
+			if (isUpToDate) {
+				prompt = `I am using ${selectedPackage} version ${currentVersion} in my JS project. It is already up to date. Please explain briefly what this library does best and provide 3 advanced code examples or best practices for this specific version.`;
+			} else {
+				prompt = `I am working on a JS project using ${selectedPackage} version ${currentVersion}. The latest version is ${latestVersion}. What are the breaking changes and potential risks of upgrading? Please list them step-by-step.`;
+			}
+
+			try {
+				clipboard.writeSync(prompt);
+				setCopySuccess(true);
+			} catch (e) {
+				setError('Clipboard failed. Please copy manually');
+			}
 		}
 		if (selectedPackage && input === 'b') {
 			setSelectedPackage(null);
@@ -87,6 +99,7 @@ const App: FC = () => {
 			borderStyle="round"
 			borderColor="cyan"
 		>
+			{/* TYMCZASOWY DEBUGGER W UI */}
 			<Box marginBottom={1} justifyContent="space-between">
 				<Text bold color="green" underline>
 					Smart Package Pilot
