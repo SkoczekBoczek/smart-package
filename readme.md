@@ -38,7 +38,7 @@ Smart Package Pilot is a terminal-based CLI tool designed to streamline the proc
 
 <div align="center">
   
-  <img src="https://via.placeholder.com/800x400.png?text=Place+Your+Demo+GIF+Here" alt="Demo GIF" width="100%">
+  https://github.com/user-attachments/assets/1c1f6b4e-d3af-4527-b9a8-d32ea8913800
 
 </div>
 
