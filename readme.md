@@ -2,7 +2,7 @@
 
 # Smart Package Pilot
 
-**GitHub Copilot Challenge Submission**
+**GitHub Copilot CLI Challenge Submission**
 
 _Automated dependency analysis and context engineering tool for safer code upgrades_
 
@@ -152,6 +152,6 @@ node dist/cli.js
 
 <div align="center">
 
-_Made for the GitHub Copilot Challenge_
+_Made for the GitHub Copilot CLI Challenge_
 
 </div>
